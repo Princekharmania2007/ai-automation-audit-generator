@@ -1,0 +1,6 @@
+{
+  "name": "AutoAudit Studio",
+  "description": "Interactive AI-powered business workflow automation auditor, ROI estimator, and conversational agent strategy designer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

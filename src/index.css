@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", "Lora", Georgia, serif;
+  --font-serif: "Playfair Display", "Lora", Georgia, serif;
+  --font-article: "Lora", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-editorial-paper: #F7F3F0;
+  --color-editorial-dark: #1A1A1A;
+  --color-editorial-medium: #3D3D3D;
+  --color-editorial-gray: #5C5954;
+  --color-editorial-muted: #8C8881;
+  --color-editorial-line: #D1CEC8;
+  --color-editorial-light-line: #E5E1DA;
+  --color-editorial-highlight: #EAE6E1;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-editorial-paper);
+  color: var(--color-editorial-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-article {
+  font-family: var(--font-article);
+}
+
+/* Custom scrollbars with editorial color alignment */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-editorial-paper);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-editorial-line);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-editorial-muted);
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Printing styles for high quality physical audits */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-break {
+    page-break-after: always;
+  }
+}
