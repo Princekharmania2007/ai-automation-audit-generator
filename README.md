@@ -1,20 +1,78 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# AutoAudit Studio
 
-# Run and deploy your AI Studio app
+### *Interactive AI-powered business workflow automation auditor, ROI estimator, and conversational agent strategy designer.*
 
-This contains everything you need to run your app locally.
+AutoAudit Studio is a full-stack web application designed for operations managers, business analysts, and automation consultants. It analyzes standard company workflows, automates manual bottlenecks, profiles operational risks, projects payback periods, and generates ready-to-boot AI agent system instructions tailored to specific departmental struggles.
 
-View your app in AI Studio: https://ai.studio/apps/a834234f-6418-456a-ba25-0493e8ab0189
+---
 
-## Run Locally
+## 🚀 Key Capabilities
 
-**Prerequisites:**  Node.js
+*   **Intelligent Business Inference Engine**: Reverse-engineers any company's core client segments, revenue models, and operational flows from an intuitive intake form.
+*   **Manual Hotspot Risk Profiler**: Flags high-friction labor areas, estimates hourly drain, and analyzes commercial leak risks for key tasks.
+*   **Financial ROI Projection**: Computes annualized value harvest, monthly labor capacities, target software expenditures, and projected investment payback timelines.
+*   **AI Agent Blueprints**: Designs production-ready specifications for autonomous specialists (e.g., SDR Agent, Customer Support Agent, Operations Assistant) including custom **bootstrappable system prompts** utilizing official model directions.
+*   **Step-by-Step Delivery Roadmap**: Maps immediate, short-term, and long-term delivery phases with precise tasks and deliverables.
+*   **Custom Presentation Controls**: Includes dynamic multi-width container layouts (Compact, Standard, Wide, Full-width views) to optimize client-facing reviews.
+*   **Executive PDF Exporter**: Bundles a tailored premium client-ready printer format using client-side layout rendering.
 
+---
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 🛠️ The Tech Stack
+
+*   **Core UI & Framework**: React 19, TypeScript, and Vite.
+*   **Style Sheet Layer**: Tailwind CSS (Native Vite Plugin Integration) for modern, responsive utility layouts.
+*   **Visual Controls & Icons**: `lucide-react` for vector icons, custom tailored print style layers, and layout width controls.
+*   **API Proxies**: Full-stack architecture backed by an Express middle-tier to host and secure API keys server-side (preventing credential leakage).
+*   **AI SDK**: `@google/genai` TypeScript SDK with robust multi-model fallback routines for extreme reliability under demand spikes.
+
+---
+
+## 📦 Local Installation & Setup
+
+Ensure you have **Node.js (version 18+)** installed.
+
+### 1. Clone the Repository & Install Dependencies
+```bash
+git clone https://github.com/your-username/autoaudit-studio.git
+cd autoaudit-studio
+npm install
+```
+
+### 2. Configure Environment Variables
+Create a `.env` file in the root directory (using `.env.example` as a template):
+```env
+# Port the Express + Vite server runs on (Must be 3000 for AI Studio compatibility)
+PORT=3000
+
+# Your Google Gemini API Key
+GEMINI_API_KEY=your_api_key_here
+```
+
+### 3. Run the App
+To start the server in development mode:
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+### 4. Build for Production
+To bundle the frontend assets and compile the TypeScript Express server:
+```bash
+npm run build
+```
+To run the production build:
+```bash
+npm run start
+```
+
+---
+
+## 💎 The Consulting Workflow
+
+1.  **Intake Profiling**: The consultant enters the company's business name, description, size, blended hourly employee rates, and hours spent on manual work weekly.
+2.  **AI Auditing**: The application proxies the requests safely to the Express server, invoking regional Gemini models. If a primary service experiences high demand, backend resilience adapters transition across secondary fallbacks:
+    *   *Primary*: `gemini-3.5-flash`
+    *   *Fallbacks*: `gemini-2.5-flash` ➡️ `gemini-3.1-flash-lite` ➡️ `gemini-3.1-pro-preview`
+3.  **Audit Assessment**: View the formatted result instantly inside the interactive dashboard. Use the layout toggle toolbar to resize columns for on-screen read-throughs.
+4.  **Actionable Hand-off**: Export polished executive document bundles for stakeholder sign-off and copy the AI boot instructions directly into production code blocks.
