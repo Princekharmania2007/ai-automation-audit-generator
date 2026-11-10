@@ -34,29 +34,35 @@ Ensure you have **Node.js (version 18+)** installed.
 
 ### 1. Clone the Repository & Install Dependencies
 ```bash
-git clone https://github.com/your-username/autoaudit-studio.git
-cd autoaudit-studio
+git clone https://github.com/Princekharmania2007/ai-automation-audit-generator.git
+cd ai-automation-audit-generator
 npm install
 ```
 
 ### 2. Configure Environment Variables
 Create a `.env` file in the root directory (using `.env.example` as a template):
 ```env
-# Port the Express + Vite server runs on (Must be 3000 for AI Studio compatibility)
+# Port the Express + Vite server runs on (defaults to 3000 locally, dynamically bound on Render)
 PORT=3000
 
 # Your Google Gemini API Key
 GEMINI_API_KEY=your_api_key_here
 ```
 
-### 3. Run the App
+### 3. Run Automated Tests
+Execute the comprehensive Vitest + Supertest integration suite:
+```bash
+npm test
+```
+
+### 4. Run the App
 To start the server in development mode:
 ```bash
 npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-### 4. Build for Production
+### 5. Build & Start for Production
 To bundle the frontend assets and compile the TypeScript Express server:
 ```bash
 npm run build
@@ -72,7 +78,7 @@ npm run start
 
 1.  **Intake Profiling**: The consultant enters the company's business name, description, size, blended hourly employee rates, and hours spent on manual work weekly.
 2.  **AI Auditing**: The application proxies the requests safely to the Express server, invoking regional Gemini models. If a primary service experiences high demand, backend resilience adapters transition across secondary fallbacks:
-    *   *Primary*: `gemini-3.5-flash`
-    *   *Fallbacks*: `gemini-2.5-flash` ➡️ `gemini-3.1-flash-lite` ➡️ `gemini-3.1-pro-preview`
+    *   *Primary*: `gemini-3.6-flash`
+    *   *Fallbacks*: `gemini-3.8-flash` ➡️ `gemini-2.5-flash` ➡️ `gemini-2.0-flash`
 3.  **Audit Assessment**: View the formatted result instantly inside the interactive dashboard. Use the layout toggle toolbar to resize columns for on-screen read-throughs.
-4.  **Actionable Hand-off**: Export polished executive document bundles for stakeholder sign-off and copy the AI boot instructions directly into production code blocks.
+4.  **Actionable Hand-off**: Export polished executive document bundles for stakeholder sign-off, simulate conversations in the live sandbox, and copy the AI boot instructions directly into production code blocks.
