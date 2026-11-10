@@ -105,6 +105,7 @@ export default function AuditResults({
 
   const startSimulator = (agent: RecommendedAgent) => {
     setSelectedAgent(agent);
+    setCurrentInput("");
     setChatMessages([
       { 
         role: "model", 
@@ -220,9 +221,15 @@ export default function AuditResults({
           </div>
           
           {pdfError && (
-            <span className="text-[10px] text-rose-700 font-mono text-right font-medium">
-              ⚠ {pdfError}
-            </span>
+            <div className="flex items-center gap-2 text-[10px] text-rose-700 font-mono text-right font-medium">
+              <span>⚠ {pdfError}</span>
+              <button 
+                onClick={printReport}
+                className="underline hover:text-black font-bold cursor-pointer"
+              >
+                Use Print to PDF instead
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -567,7 +574,7 @@ export default function AuditResults({
               {report.recommendedAgents.map((agent, i) => (
                 <button
                   key={i}
-                  onClick={() => setSelectedAgent(agent)}
+                  onClick={() => startSimulator(agent)}
                   className={`w-full text-left p-6 border transition-all flex flex-col gap-2 ${
                     selectedAgent?.name === agent.name
                       ? 'bg-white border-[#1A1A1A] ring-1 ring-[#1A1A1A]'
@@ -576,7 +583,7 @@ export default function AuditResults({
                 >
                   <div className="flex justify-between items-center w-full">
                     <span className="text-[10px] font-mono tracking-wider text-[#8C8881] uppercase font-bold">
-                      Besopke Agent 0{i+1}
+                      Bespoke Agent 0{i+1}
                     </span>
                     <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-mono font-bold">
                       ● READY_SIM

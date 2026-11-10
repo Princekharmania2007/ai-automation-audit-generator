@@ -104,7 +104,7 @@ export default function App() {
                   onClick={() => setErrorText(null)}
                   className="text-xs underline font-bold mt-3 text-rose-950 hover:text-rose-900 block"
                 >
-                  Dimiss Warning
+                  Dismiss Warning
                 </button>
               </div>
             </div>

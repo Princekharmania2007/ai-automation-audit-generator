@@ -118,7 +118,7 @@ export default function AuditForm({ onSubmit, isLoading }: AuditFormProps) {
               </div>
               <div>
                 <h3 className="font-serif italic text-lg text-[#1A1A1A]">Generating Strategy Audit</h3>
-                <p className="text-xs text-[#8C8881] font-mono">Formulating ROI equations via Gemini 3.5...</p>
+                <p className="text-xs text-[#8C8881] font-mono">Formulating ROI equations via Gemini AI...</p>
               </div>
             </div>
 

@@ -23,20 +23,23 @@ function getAIClient() {
 }
 
 // Robust JSON parsing utility to clean and parse model outputs
-function parseSafeJson(text: string) {
+export function parseSafeJson(text: string) {
   let cleaned = text.trim();
-  if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  const markdownMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (markdownMatch && markdownMatch[1]) {
+    cleaned = markdownMatch[1].trim();
+  } else if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
   }
-  return JSON.parse(cleaned.trim());
+  return JSON.parse(cleaned);
 }
 
 // Robust fallback wrapper over AI generation to handle model busy/error states gracefully
-async function generateContentWithFallback(ai: any, modelArgs: {
+export async function generateContentWithFallback(ai: any, modelArgs: {
   contents: any;
   config?: any;
 }) {
-  const models = ["gemini-3.5-flash", "gemini-2.5-flash", "gemini-3.1-flash-lite", "gemini-3.1-pro-preview"];
+  const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
   let lastError: any = null;
 
   for (const modelName of models) {
@@ -61,10 +64,8 @@ async function generateContentWithFallback(ai: any, modelArgs: {
   throw lastError || new Error("All regional Gemini models are currently experiencing high demand.");
 }
 
-async function startServer() {
+export function createApp() {
   const app = express();
-  const PORT = 3000;
-
   app.use(express.json());
 
   // API Check Status Endpoint
@@ -85,13 +86,30 @@ async function startServer() {
         manualHoursPerWeek = 15
       } = req.body;
 
-      if (!businessName || !industry) {
-        return res.status(400).json({ error: "Business Name and Industry are required" });
+      if (!businessName || typeof businessName !== "string" || !businessName.trim()) {
+        return res.status(400).json({ error: "Business Name is required." });
       }
+
+      if (!industry || typeof industry !== "string" || !industry.trim()) {
+        return res.status(400).json({ error: "Industry is required." });
+      }
+
+      if (!description || typeof description !== "string" || !description.trim()) {
+        return res.status(400).json({ error: "Description of bottlenecks is required." });
+      }
+
+      const parsedEmployees = Number(employeeCount);
+      const validEmployees = !isNaN(parsedEmployees) && parsedEmployees > 0 ? Math.round(parsedEmployees) : 5;
+
+      const parsedRate = Number(hourlyRate);
+      const validRate = !isNaN(parsedRate) && parsedRate > 0 ? parsedRate : 30;
+
+      const parsedHours = Number(manualHoursPerWeek);
+      const validHours = !isNaN(parsedHours) && parsedHours > 0 ? Math.min(parsedHours, 168) : 15;
 
       if (!process.env.GEMINI_API_KEY) {
         return res.status(500).json({ 
-          error: "Gemini API key is not configured. Please add GEMINI_API_KEY to your Secrets panel." 
+          error: "Gemini API key is not configured. Please add GEMINI_API_KEY to your environment variables." 
         });
       }
 
@@ -100,14 +118,14 @@ async function startServer() {
       const promptContext = `
         You are a world-class AI Automation Consultant, Operational Excellence Expert, and McKinsey Strategy Lead.
         Perform a comprehensive Automation Audit and Custom AI Agent Roadmap Strategy for the following business:
-        - Business Name: ${businessName}
-        - Website: ${website || "Not provided (infer from name if applicable)"}
-        - Industry: ${industry}
-        - Description & Context: ${description || "Not provided. Please use your advanced consulting knowledge of this industry to infer their primary business model, workflows, and structures."}
-        - Company Size: ${employeeCount ? employeeCount + ' employees' : 'Generic SMB'}
+        - Business Name: ${businessName.trim()}
+        - Website: ${website ? String(website).trim() : "Not provided (infer from name if applicable)"}
+        - Industry: ${industry.trim()}
+        - Description & Context: ${description.trim()}
+        - Company Size: ${validEmployees} employees
         - Financial / Operational Assumptions:
-          * Estimated manual/repetitive employee work hours target: ${manualHoursPerWeek} hours/week per employee
-          * Hourly blended employee labor/overhead rate: $${hourlyRate}/hour
+          * Estimated manual/repetitive employee work hours target: ${validHours} hours/week per employee
+          * Hourly blended employee labor/overhead rate: $${validRate}/hour
 
         Generate an exceptionally detailed, rigorous, and highly contextual audit report.
         Strictly adhere to the required JSON schema, avoiding placeholders or dry technical text.
@@ -267,22 +285,39 @@ async function startServer() {
     try {
       const { systemInstruction, history, message } = req.body;
 
-      if (!process.env.GEMINI_API_KEY) {
-        return res.status(500).json({ 
-          error: "Gemini API key is not configured inside the environment." 
-        });
+      if (!message || typeof message !== "string" || !message.trim()) {
+        return res.status(400).json({ error: "A valid non-empty message is required." });
       }
 
-      if (!message || !systemInstruction) {
-        return res.status(400).json({ error: "Message and Agent System Instructions are required." });
+      if (!systemInstruction || typeof systemInstruction !== "string" || !systemInstruction.trim()) {
+        return res.status(400).json({ error: "Agent system instruction is required." });
+      }
+
+      if (!process.env.GEMINI_API_KEY) {
+        return res.status(500).json({ 
+          error: "Gemini API key is not configured. Please add GEMINI_API_KEY to your environment variables." 
+        });
       }
 
       const ai = getAIClient();
 
-      // Convert history to compatible format for chats
-      const formattedContents = JSON.parse(JSON.stringify(history || []));
+      // Convert and sanitize history to compatible format for chats
+      const formattedContents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
+      if (Array.isArray(history)) {
+        for (const item of history) {
+          if (item && (item.role === 'user' || item.role === 'model') && Array.isArray(item.parts)) {
+            const sanitizedParts = item.parts
+              .filter((p: any) => p && typeof p.text === 'string')
+              .map((p: any) => ({ text: String(p.text) }));
+            if (sanitizedParts.length > 0) {
+              formattedContents.push({ role: item.role, parts: sanitizedParts });
+            }
+          }
+        }
+      }
+
       // Append current message
-      formattedContents.push({ role: 'user', parts: [{ text: message }] });
+      formattedContents.push({ role: 'user', parts: [{ text: message.trim() }] });
 
       const response = await generateContentWithFallback(ai, {
         contents: formattedContents,
@@ -309,7 +344,11 @@ async function startServer() {
     }
   });
 
-  // Dev server vs Prouduction hosting logic
+  return app;
+}
+
+export async function configureFrontend(app: express.Express) {
+  // Dev server vs Production hosting logic
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -323,10 +362,19 @@ async function startServer() {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
+}
 
-  app.listen(PORT, "0.0.0.0", () => {
+export async function startServer() {
+  const app = createApp();
+  await configureFrontend(app);
+
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  return app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
   });
 }
 
-startServer();
+// Automatically start server unless imported in a test environment
+if (process.env.NODE_ENV !== "test") {
+  startServer();
+}
