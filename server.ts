@@ -7,10 +7,16 @@ import { GoogleGenAI, Type } from "@google/genai";
 dotenv.config();
 
 // Helper to secure dynamic, lazily configured GoogleGenAI instances
-function getAIClient() {
-  const currentKey = process.env.GEMINI_API_KEY;
-  if (!currentKey) {
-    throw new Error("GEMINI_API_KEY environment variable is not configured. Please add it to your secrets panel.");
+export function getAIClient() {
+  if (process.env.NODE_ENV !== "test") {
+    dotenv.config();
+  }
+  let currentKey = process.env.GEMINI_API_KEY;
+  if (currentKey) {
+    currentKey = currentKey.trim().replace(/^["']|["']$/g, "");
+  }
+  if (!currentKey || currentKey === "your_api_key_here") {
+    throw new Error("Gemini API key is not configured with a valid key. Please set your real API key in the .env file.");
   }
   return new GoogleGenAI({
     apiKey: currentKey,
@@ -70,7 +76,12 @@ export function createApp() {
 
   // API Check Status Endpoint
   app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", apiConfigured: !!process.env.GEMINI_API_KEY });
+    if (process.env.NODE_ENV !== "test") {
+      dotenv.config();
+    }
+    const key = process.env.GEMINI_API_KEY?.trim().replace(/^["']|["']$/g, "");
+    const isConfigured = !!key && key !== "your_api_key_here";
+    res.json({ status: "ok", apiConfigured: isConfigured });
   });
 
   // Automated Audit Generator Endpoint
@@ -107,9 +118,13 @@ export function createApp() {
       const parsedHours = Number(manualHoursPerWeek);
       const validHours = !isNaN(parsedHours) && parsedHours > 0 ? Math.min(parsedHours, 168) : 15;
 
-      if (!process.env.GEMINI_API_KEY) {
+      if (process.env.NODE_ENV !== "test") {
+        dotenv.config();
+      }
+      const currentKey = process.env.GEMINI_API_KEY?.trim().replace(/^["']|["']$/g, "");
+      if (!currentKey || currentKey === "your_api_key_here") {
         return res.status(500).json({ 
-          error: "Gemini API key is not configured. Please add GEMINI_API_KEY to your environment variables." 
+          error: "Gemini API key is not configured with a valid key. Please set your real API key in the .env file." 
         });
       }
 
@@ -293,9 +308,13 @@ export function createApp() {
         return res.status(400).json({ error: "Agent system instruction is required." });
       }
 
-      if (!process.env.GEMINI_API_KEY) {
+      if (process.env.NODE_ENV !== "test") {
+        dotenv.config();
+      }
+      const currentKey = process.env.GEMINI_API_KEY?.trim().replace(/^["']|["']$/g, "");
+      if (!currentKey || currentKey === "your_api_key_here") {
         return res.status(500).json({ 
-          error: "Gemini API key is not configured. Please add GEMINI_API_KEY to your environment variables." 
+          error: "Gemini API key is not configured with a valid key. Please set your real API key in the .env file." 
         });
       }
 
