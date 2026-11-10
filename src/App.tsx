@@ -45,7 +45,8 @@ export default function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || data.details || "Internal operational analysis failure.");
+        const detailMsg = data.details ? ` Details: ${typeof data.details === 'object' ? JSON.stringify(data.details) : data.details}` : "";
+        throw new Error(`${data.error || "Internal operational analysis failure."}${detailMsg}`);
       }
 
       setReport(data);
